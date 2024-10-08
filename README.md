@@ -24,16 +24,21 @@ Bu projeyi çalıştırmak için aşağıdaki Python kütüphanelerine ihtiyacı
 
    ```bash
    git clone https://github.com/aspidisu/mutercim
+   ```
+   
+   ```bash
    cd mutercim
    ```
+   
 
-2. **Gerekli Kütüphaneleri Yükleyin:**
+
+1. **Gerekli Kütüphaneleri Yükleyin:**
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Uygulamayı Çalıştırın:**
+2. **Uygulamayı Çalıştırın:**
 
    ```bash
    python mutercim.py

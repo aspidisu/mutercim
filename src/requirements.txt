@@ -1,0 +1,1 @@
+/home/aspidisu/Belgeler/ceviri/requirements.txt

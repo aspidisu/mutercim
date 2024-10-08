@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Mutercim
+Exec=mutercim
+Icon=/path/to/mütercim/translation.png
+Terminal=false
+Categories=Utility;

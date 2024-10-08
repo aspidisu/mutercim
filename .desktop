@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Mutercim
-Exec=python /home/aspidisu/Belgeler/ceviri/mutercim.py
-Icon=/home/aspidisu/Belgeler/ceviri/translation.png
+Exec=python mutercim.py
+Icon=/translation.png
 Type=Application
 Terminal=false
 Categories=Utility;

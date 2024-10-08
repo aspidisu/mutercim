@@ -35,7 +35,7 @@ Bu projeyi çalıştırmak için aşağıdaki Python kütüphanelerine ihtiyacı
 1. **Gerekli Kütüphaneleri Yükleyin:**
 
    ```bash
-   pip install -r requirements.txt
+   sudo pacman -S python-requests python-pyperclip tk
    ```
 
 2. **Uygulamayı Çalıştırın:**

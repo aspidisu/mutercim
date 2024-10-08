@@ -14,11 +14,11 @@ Mütercim, İngilizceden Türkçeye metin çevirisi yapan basit ve kullanıcı d
 Projenin en son sürümünü klonlayarak ve bağımlılıkları yükleyerek uygulamayı kurabilirsiniz:
 
 ```bash
-git clone https://github.com/kullanici_adi/mütercim.git
+git clone https://github.com/aspidisu/mutercim.git
 ```
 
 ```bash
-cd mütercim
+cd mutercim
 ```
 
 ```bash

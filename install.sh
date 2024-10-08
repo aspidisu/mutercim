@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Gerekli bağımlılıkları yükle
-pip install -r requirements.txt
+sudo pacman -S --needed python python-requests python-tk

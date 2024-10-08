@@ -1,8 +1,7 @@
 [Desktop Entry]
-Version=1.0
-Type=Application
 Name=Mutercim
-Exec=mutercim
-Icon=/path/to/mütercim/translation.png
+Exec=python /home/aspidisu/Belgeler/ceviri/mutercim.py
+Icon=/home/aspidisu/Belgeler/ceviri/translation.png
+Type=Application
 Terminal=false
 Categories=Utility;

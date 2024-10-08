@@ -24,3 +24,8 @@ cd mutercim
 ```bash
 ./install.sh
 ```
+
+
+```bash
+mutercim
+```

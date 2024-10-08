@@ -1,9 +1,15 @@
-import sys
-import requests
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QTextEdit, QLabel, QPushButton)
-from PyQt5.QtCore import QTimer, Qt
+#!/usr/bin/env python3
 
-# Çeviri fonksiyonu
+import requests
+import tkinter as tk
+from tkinter import scrolledtext, ttk
+import pyperclip
+import time
+import threading
+
+# Başlangıçta karanlık tema
+dark_theme = True
+
 def translate_text(text):
     url = "https://api.mymemory.translated.net/get"
     params = {
@@ -16,175 +22,80 @@ def translate_text(text):
         translated_text = response.json().get('responseData', {}).get('translatedText', '')
         return translated_text
     else:
-        return None  # Hata durumunda None döndür
+        return "Çeviri API'sinde bir hata oluştu."
 
-class TranslatorApp(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        # Ana pencere ayarları
-        self.setWindowTitle("Mütercim - Anlık Çeviri Uygulaması")
-        self.setGeometry(100, 100, 800, 600)
-        self.init_ui()
-        
-        # Panoyu izlemek için zamanlayıcı başlat
-        self.clipboard = QApplication.clipboard()
-        self.previous_text = ""
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.check_clipboard)
-        self.timer.start(1000)  # Her saniyede bir kontrol et
-
-        # Tema durumu
-        self.dark_mode = True
-        self.set_dark_theme()  # Uygulama açıldığında karanlık temayı ayarla
-
-    def init_ui(self):
-        # Ana layout
-        self.main_layout = QVBoxLayout()
-
-        # Başlık
-        self.title_label = QLabel("Mütercim - Anlık Çeviri Uygulaması")
-        self.title_label.setAlignment(Qt.AlignCenter)
-        self.title_label.setStyleSheet("""
-            font-size: 24px;
-            font-weight: bold;
-            padding: 10px;
-            color: #ffffff;  /* Karanlık temada beyaz, açık temada siyah olacak */
-        """)
-        self.main_layout.addWidget(self.title_label)
-
-        # Sonuç alanı
-        self.result_text = QTextEdit(self)
-        self.result_text.setReadOnly(True)
-        self.result_text.setPlaceholderText("Çeviri burada görünecek...")
-        self.result_text.setStyleSheet("""
-            background-color: #1e1e1e;
-            color: #f9f9f9;
-            border: 1px solid #555555;
-            font-size: 14px;
-            padding: 10px;
-            border-radius: 10px;
-        """)
-        self.main_layout.addWidget(self.result_text)
-
-        # Tema değiştirme butonu
-        self.theme_button = QPushButton("Tema Değiştir", self)
-        self.theme_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3a3a3a;
-                color: #ffffff;
-                border: 1px solid #555555;
-                padding: 10px;
-                font-size: 14px;
-                border-radius: 10px;
-                transition: all 0.3s ease;
-            }
-            QPushButton:hover {
-                background-color: #5a5a5a;
-                border-color: #777777;
-                font-size: 15px;
-            }
-        """)
-        self.theme_button.clicked.connect(self.toggle_theme)
-        self.main_layout.addWidget(self.theme_button)
-
-        # Ana layout'ı ayarla
-        self.setLayout(self.main_layout)
-
-    # Clipboard'u kontrol et
-    def check_clipboard(self):
-        current_text = self.clipboard.text().strip()  # Panodaki metni al
-        if current_text and current_text != self.previous_text:  # Değişiklik varsa
-            self.previous_text = current_text  # Önceki metni güncelle
+def monitor_clipboard():
+    previous_text = ""
+    while True:
+        current_text = pyperclip.paste()  # Kopyalanan metni al
+        if current_text and current_text != previous_text:
             translated_text = translate_text(current_text)  # Çevir
-            if translated_text is not None:  # API'den sonuç alınabilirse
-                self.result_text.setText(translated_text)  # Sonucu göster
-            else:
-                self.result_text.setText("Çeviri API'sinde bir hata oluştu.")  # Hata mesajı göster
+            result_area.config(state=tk.NORMAL)  # Sonuç alanını etkinleştir
+            result_area.delete("1.0", tk.END)  # Önceki sonuçları temizle
+            result_area.insert(tk.END, translated_text)  # Yeni sonucu ekle
+            result_area.config(state=tk.DISABLED)  # Sonuç alanını devre dışı bırak
+            previous_text = current_text  # Son metni güncelle
+        time.sleep(1)  # 1 saniye bekle
 
-    # Tema değiştirme fonksiyonu
-    def toggle_theme(self):
-        if self.dark_mode:
-            self.set_light_theme()
-            self.dark_mode = False
-        else:
-            self.set_dark_theme()
-            self.dark_mode = True
+def toggle_theme():
+    global dark_theme
+    if dark_theme:
+        # Açık tema ayarları
+        root.configure(bg="#F5F5F5")
+        title_label.config(bg="#F5F5F5", fg="#333")
+        result_area.config(bg="#FFFFFF", fg="#333")
+        theme_button.config(bg="#4CAF50", fg="white")
+        theme_button.config(text="Karanlık Temaya Geç")
+    else:
+        # Karanlık tema ayarları
+        root.configure(bg="#2E2E2E")
+        title_label.config(bg="#2E2E2E", fg="#FFFFFF")
+        result_area.config(bg="#444444", fg="#FFFFFF")
+        theme_button.config(bg="#FF5722", fg="white")
+        theme_button.config(text="Açık Temaya Geç")
+    dark_theme = not dark_theme
 
-    # Light tema
-    def set_light_theme(self):
-        self.setStyleSheet("background-color: #ffffff; color: #333333;")
-        self.title_label.setStyleSheet("""
-            font-size: 24px;
-            font-weight: bold;
-            padding: 10px;
-            color: #000000;  /* Açık temada siyah başlık */
-        """)
-        self.result_text.setStyleSheet("""
-            background-color: #f0f0f0;
-            color: #333333;
-            border: 1px solid #dddddd;
-            font-size: 14px;
-            padding: 10px;
-            border-radius: 10px;
-        """)
-        self.theme_button.setStyleSheet("""
-            QPushButton {
-                background-color: #dddddd;
-                color: #333333;
-                border: 1px solid #aaaaaa;
-                padding: 10px;
-                font-size: 14px;
-                border-radius: 10px;
-                transition: all 0.3s ease;
-            }
-            QPushButton:hover {
-                background-color: #cccccc;
-                border-color: #999999;
-                font-size: 15px;
-            }
-        """)
+# Arayüz oluşturma
+root = tk.Tk()
+root.title("Mütercim - Metin Çeviri Uygulaması")
+root.geometry("600x400")  # Uygulama boyutu
 
-    # Dark tema
-    def set_dark_theme(self):
-        self.setStyleSheet("background-color: #2b2b2b; color: #f9f9f9;")
-        self.title_label.setStyleSheet("""
-            font-size: 24px;
-            font-weight: bold;
-            padding: 10px;
-            color: #ffffff;  /* Karanlık temada beyaz başlık */
-        """)
-        self.result_text.setStyleSheet("""
-            background-color: #1e1e1e;
-            color: #f9f9f9;
-            border: 1px solid #555555;
-            font-size: 14px;
-            padding: 10px;
-            border-radius: 10px;
-        """)
-        self.theme_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3a3a3a;
-                color: #ffffff;
-                border: 1px solid #555555;
-                padding: 10px;
-                font-size: 14px;
-                border-radius: 10px;
-                transition: all 0.3s ease;
-            }
-            QPushButton:hover {
-                background-color: #5a5a5a;
-                border-color: #777777;
-                font-size: 15px;
-            }
-        """)
+# Karanlık tema ayarları
+root.configure(bg="#2E2E2E")  # Arka plan rengi
 
-# Uygulama başlatma
-def main():
-    app = QApplication(sys.argv)
-    translator_app = TranslatorApp()
-    translator_app.show()
-    sys.exit(app.exec_())
+# Tema ayarları
+style = ttk.Style()
+style.theme_use("clam")  # Temayı değiştirin
+style.configure("TLabel", font=("Arial", 12))
 
-if __name__ == "__main__":
-    main()
+# Başlık
+title_label = tk.Label(root, text="Mütercim - Anlık Çeviri Uygulaması", font=("Arial", 18, "bold"), bg="#2E2E2E", fg="#FFFFFF")
+title_label.pack(pady=20)
+
+# Sonuç alanı
+result_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=70, height=15, state=tk.DISABLED, bg="#444444", fg="#FFFFFF")
+result_area.pack(pady=10, padx=10)
+
+# Tema değiştirme butonu
+theme_button = tk.Button(root, text="Açık Temaya Geç", command=toggle_theme, bg="#FF5722", fg="white", font=("Arial", 12), relief="flat")
+theme_button.pack(pady=10)
+
+# Buton hover etkisi için fonksiyon
+def on_enter(e):
+    theme_button.config(bg="#FF784E")  # Hover rengi
+
+def on_leave(e):
+    if dark_theme:
+        theme_button.config(bg="#FF5722")  # Karanlık tema rengi
+    else:
+        theme_button.config(bg="#4CAF50")  # Açık tema rengi
+
+# Buton üzerine gelince renk değiştirme
+theme_button.bind("<Enter>", on_enter)
+theme_button.bind("<Leave>", on_leave)
+
+# Klip monitörünü ayrı bir thread'de başlat
+threading.Thread(target=monitor_clipboard, daemon=True).start()
+
+# Uygulamanın ana döngüsünü başlat
+root.mainloop()

@@ -3,14 +3,15 @@
 pkgname = mutercim
 pkgbase = mutercim
 xdata = pkgtype=pkg
-pkgver = 1.0-1
-pkgdesc = Kopyalanan metni otomatik olarak çeviren bir Python uygulaması.
-url = https://yourprojecturl.com
-builddate = 1728387547
+pkgver = 1.0.0-1
+pkgdesc = An instant translation application
+url = https://github.com/aspidisu/mutercim
+builddate = 1728399595
 packager = Unknown Packager
-size = 1675
-arch = x86_64
+size = 31107
+arch = any
 license = MIT
+depend = python
 depend = python-requests
-depend = python-pyperclip
 depend = tk
+depend = python-pyqt5

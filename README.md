@@ -1,6 +1,6 @@
 # Mütercim
 
-Mütercim, İngilizceden Türkçeye metin çevirisi yapan basit ve kullanıcı dostu bir Python uygulamasıdır. Kopyalanan metni otomatik olarak algılayarak çeviri işlemi gerçekleştirmektedir.
+Mütercim, İngilizceden Türkçeye metin çevirisi yapan basit ve kullanıcı dostu bir Python uygulamasıdır. Kopyalanan metni otomatik olarak algılayarak çeviri işlemi gerçekleştirmektedir. Henüz sadece terminal üzerinden çalışmaktadır.
 
 ## Özellikler
 

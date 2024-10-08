@@ -15,6 +15,12 @@ Projenin en son sürümünü klonlayarak ve bağımlılıkları yükleyerek uygu
 
 ```bash
 git clone https://github.com/kullanici_adi/mütercim.git
+```
+
+```bash
 cd mütercim
+```
+
+```bash
 ./install.sh
 ```

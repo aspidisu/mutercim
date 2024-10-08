@@ -9,11 +9,6 @@ Mütercim, İngilizceden Türkçeye metin çevirisi yapan basit ve kullanıcı d
 - Kullanıcı dostu grafik arayüzü.
 - Kolay kurulum ve kullanım.
 
-## Gereksinimler
-
-- Python 3.x
-- `requests` kütüphanesi
-
 ## Kurulum
 
 Projenin en son sürümünü klonlayarak ve bağımlılıkları yükleyerek uygulamayı kurabilirsiniz:
@@ -21,5 +16,5 @@ Projenin en son sürümünü klonlayarak ve bağımlılıkları yükleyerek uygu
 ```bash
 git clone https://github.com/kullanici_adi/mütercim.git
 cd mütercim
-./install.sh  # veya make install
+./install.sh
 ```

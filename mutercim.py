@@ -1,101 +1,146 @@
-#!/usr/bin/env python3
-
+import sys
 import requests
-import tkinter as tk
-from tkinter import scrolledtext, ttk
 import pyperclip
-import time
-import threading
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QTextEdit, QComboBox
+from PyQt5.QtCore import QTimer
 
-# Başlangıçta karanlık tema
-dark_theme = True
+class MutercimApp(QWidget):
+    def __init__(self):
+        super().__init__()
 
-def translate_text(text):
-    url = "https://api.mymemory.translated.net/get"
-    params = {
-        "q": text,
-        "langpair": "en|tr"  # İngilizceden Türkçeye çeviri
-    }
-    response = requests.get(url, params=params)
-    
-    if response.status_code == 200:
-        translated_text = response.json().get('responseData', {}).get('translatedText', '')
-        return translated_text
-    else:
-        return "Çeviri API'sinde bir hata oluştu."
+        self.setWindowTitle("Mütercim - Anlık Çeviri")
+        self.setGeometry(100, 100, 600, 400)
 
-def monitor_clipboard():
-    previous_text = ""
-    while True:
-        current_text = pyperclip.paste()  # Kopyalanan metni al
-        if current_text and current_text != previous_text:
-            translated_text = translate_text(current_text)  # Çevir
-            result_area.config(state=tk.NORMAL)  # Sonuç alanını etkinleştir
-            result_area.delete("1.0", tk.END)  # Önceki sonuçları temizle
-            result_area.insert(tk.END, translated_text)  # Yeni sonucu ekle
-            result_area.config(state=tk.DISABLED)  # Sonuç alanını devre dışı bırak
-            previous_text = current_text  # Son metni güncelle
-        time.sleep(1)  # 1 saniye bekle
+        self.layout = QVBoxLayout()
+        
+        # Dil seçim menüsü
+        self.language_label = QLabel("Çeviri Dili Seçin:")
+        self.layout.addWidget(self.language_label)
 
-def toggle_theme():
-    global dark_theme
-    if dark_theme:
-        # Açık tema ayarları
-        root.configure(bg="#F5F5F5")
-        title_label.config(bg="#F5F5F5", fg="#333")
-        result_area.config(bg="#FFFFFF", fg="#333")
-        theme_button.config(bg="#4CAF50", fg="white")
-        theme_button.config(text="Karanlık Temaya Geç")
-    else:
-        # Karanlık tema ayarları
-        root.configure(bg="#2E2E2E")
-        title_label.config(bg="#2E2E2E", fg="#FFFFFF")
-        result_area.config(bg="#444444", fg="#FFFFFF")
-        theme_button.config(bg="#FF5722", fg="white")
-        theme_button.config(text="Açık Temaya Geç")
-    dark_theme = not dark_theme
+        self.language_combo = QComboBox()
+        self.language_combo.addItems(["İngilizce", "Fransızca", "Almanca", "İspanyolca", "İtalyanca"])
+        self.layout.addWidget(self.language_combo)
 
-# Arayüz oluşturma
-root = tk.Tk()
-root.title("Mütercim - Metin Çeviri Uygulaması")
-root.geometry("600x400")  # Uygulama boyutu
+        # Başlık
+        self.input_label = QLabel("Kopyalanan Metin:")
+        self.layout.addWidget(self.input_label)
 
-# Karanlık tema ayarları
-root.configure(bg="#2E2E2E")  # Arka plan rengi
+        # Girdi metin kutusu
+        self.input_text = QTextEdit()
+        self.layout.addWidget(self.input_text)
 
-# Tema ayarları
-style = ttk.Style()
-style.theme_use("clam")  # Temayı değiştirin
-style.configure("TLabel", font=("Arial", 12))
+        # Çeviri başlığı
+        self.output_label = QLabel("Çeviri:")
+        self.layout.addWidget(self.output_label)
 
-# Başlık
-title_label = tk.Label(root, text="Mütercim - Anlık Çeviri Uygulaması", font=("Arial", 18, "bold"), bg="#2E2E2E", fg="#FFFFFF")
-title_label.pack(pady=20)
+        # Çıktı metin kutusu
+        self.output_text = QTextEdit()
+        self.output_text.setReadOnly(True)
+        self.layout.addWidget(self.output_text)
 
-# Sonuç alanı
-result_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=70, height=15, state=tk.DISABLED, bg="#444444", fg="#FFFFFF")
-result_area.pack(pady=10, padx=10)
+        self.setLayout(self.layout)
 
-# Tema değiştirme butonu
-theme_button = tk.Button(root, text="Açık Temaya Geç", command=toggle_theme, bg="#FF5722", fg="white", font=("Arial", 12), relief="flat")
-theme_button.pack(pady=10)
+        # Önceki metni tutmak için değişken
+        self.previous_text = ""
+        
+        # Her 1000 ms'de bir panoyu kontrol etmek için bir zamanlayıcı ayarlıyoruz
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.check_clipboard)
+        self.timer.start(1000)  # 1 saniyede bir kontrol et
 
-# Buton hover etkisi için fonksiyon
-def on_enter(e):
-    theme_button.config(bg="#FF784E")  # Hover rengi
+        # Stil ayarları
+        self.setStyle()
 
-def on_leave(e):
-    if dark_theme:
-        theme_button.config(bg="#FF5722")  # Karanlık tema rengi
-    else:
-        theme_button.config(bg="#4CAF50")  # Açık tema rengi
+    def setStyle(self):
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #f0f4f8;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                border-radius: 10px;
+                padding: 10px;
+            }
+            QLabel {
+                font-size: 18px;
+                font-weight: bold;
+                margin: 10px 0;
+                color: #333333;
+            }
+            QTextEdit {
+                border: 1px solid #cccccc;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 16px;
+                background-color: #ffffff;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            QTextEdit:focus {
+                border: 1px solid #007BFF;
+                background-color: #e9f7fe;
+                box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+            }
+            QComboBox {
+                border: 1px solid #cccccc;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 16px;
+                background-color: #ffffff;
+            }
+            QComboBox:focus {
+                border: 1px solid #007BFF;
+            }
+            QComboBox::drop-down {
+                border: none; /* Açılır menü okunu özelleştirmek için kullanılabilir */
+            }
+            QComboBox:hover {
+                border: 1px solid #007BFF;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #ffffff; /* Açılır menü arka plan rengi */
+                selection-background-color: #007BFF; /* Seçim arka plan rengi */
+                selection-color: #ffffff; /* Seçim metin rengi */
+                color: #333333; /* Varsayılan metin rengi */
+            }
+            QComboBox QAbstractItemView::item:hover {
+                background-color: #007BFF; /* Hover durumu için arka plan rengi */
+                color: #ffffff; /* Hover durumunda metin rengi */
+            }
+        """)
 
-# Buton üzerine gelince renk değiştirme
-theme_button.bind("<Enter>", on_enter)
-theme_button.bind("<Leave>", on_leave)
+    def check_clipboard(self):
+        current_text = pyperclip.paste()
+        if current_text != self.previous_text:
+            self.previous_text = current_text
+            self.input_text.setPlainText(current_text)
+            self.translate_text(current_text)
 
-# Klip monitörünü ayrı bir thread'de başlat
-threading.Thread(target=monitor_clipboard, daemon=True).start()
+    def translate_text(self, text):
+        if text:
+            # Seçilen dili al
+            selected_language = self.language_combo.currentText()
+            language_mapping = {
+                "İngilizce": "en|tr",
+                "Fransızca": "fr|tr",
+                "Almanca": "de|tr",
+                "İspanyolca": "es|tr",
+                "İtalyanca": "it|tr"
+            }
+            lang_pair = language_mapping[selected_language]
 
-# Uygulamanın ana döngüsünü başlat
-root.mainloop()
+            url = "https://api.mymemory.translated.net/get"
+            params = {
+                "q": text,
+                "langpair": lang_pair
+            }
+            response = requests.get(url, params=params)
+            if response.status_code == 200:
+                result = response.json()
+                translated_text = result['responseData']['translatedText']
+                self.output_text.setPlainText(translated_text)
+            else:
+                self.output_text.setPlainText("Çeviri alınamadı.")
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MutercimApp()
+    window.show()
+    sys.exit(app.exec_())

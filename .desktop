@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=Mütercim
+Exec=/full/path/to/dist/mutercim
+Icon=/full/path/to/icon.png
+Type=Application
+Terminal=false
+Categories=Utility;

@@ -1,1 +1,0 @@
-/home/aspidisu/Belgeler/ceviri/mutercim.py

@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=Mutercim
-Exec=python mutercim.py
-Icon=/translation.png
-Type=Application
-Terminal=false
-Categories=Utility;
